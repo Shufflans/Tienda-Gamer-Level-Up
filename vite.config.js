@@ -13,4 +13,5 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: './src/tests/setup.js',
   },
+  base: '/Tienda-Gamer-Level-Up/',
 })

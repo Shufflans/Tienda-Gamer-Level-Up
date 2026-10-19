@@ -19,7 +19,8 @@ export function Navbar() {
                     <span className="block text-[#F5EEFF]">Level-Up</span>
                      <span className="text-[#C6F432]">GAMER</span>
                 </h1>
-
+                
+                {/* ESTE ES EL NAVEGADOR PARA PC */}
                 <nav className="hidden md:flex bg-[#1A0B2E]">
                     <Link to="/" className="text-lg text-center p-3 w-full">Home</Link>
                     <Link to="/" className="text-lg text-center p-3 w-full">Categorías</Link>
@@ -33,8 +34,10 @@ export function Navbar() {
                     <p>$0</p>
                 </div>
             </div>
+
+            {/* ESTE ES EL NAVEGADOR PARA CELULAR */}
             <nav onClick={() => setEstaAbierto(false)} className={`${estaAbierto ? 'opacity-100 visible' : 'pointer-events-none opacity-0 invisible'} fixed top-24 left-0 right-0 z-50 flex flex-col bg-[#1A0B2E] overflow-y-auto transition-all duration-300 ease-in-out gap-4 bottom-0`}>
-                <form onClick={(e) => e.stopPropagation()} className="p-4 flex w-full gap-6 justify-between">
+                <form onSubmit={(e) => e.preventDefault()} onClick={(e) => e.stopPropagation()} className="p-4 flex w-full gap-6 justify-between">
                     <div className="border border-[#43237A] w-fit p-3 rounded-xl flex">
                         <input type="text" placeholder="Buscar productos..." className="outline-none w-full"/>
                         <button>

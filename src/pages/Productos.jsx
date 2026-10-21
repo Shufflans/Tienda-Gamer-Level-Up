@@ -118,11 +118,11 @@ export default function Productos() {
           {productosFiltrados.map((producto) => (
             <article
               key={producto.id}
-              className="bg-[#24123F] border border-[#43237A] rounded-2xl overflow-hidden hover:border-[#C6F432] transition group"
+              className="bg-[#24123F] border border-[#43237A] rounded-2xl overflow-hidden hover:border-[#C6F432] flex flex-col transition group justify-between"
             >
               <Link to={`/productos/${producto.id}`}>
                 <img
-                  src={producto.imagen}
+                  src={`${import.meta.env.BASE_URL}${producto.imagen}`}
                   alt={producto.nombre}
                   className="w-full h-48 object-cover group-hover:scale-105 transition duration-300"
                 />
@@ -141,7 +141,7 @@ export default function Productos() {
                     : "Agotado"}
                 </p>
 
-                <Link to={`/productos/${producto.id}`} className="block text-center bg-[#C6F432] text-[#1A0B2E] font-bold py-3 rounded-xl hover:brightness-110 transition">Ver detalles</Link>
+                <Link to={`/productos/${producto.id}`} className="block text-center bg-[#C6F432] text-[#1A0B2E] justify-end font-bold py-3 rounded-xl hover:brightness-110 transition">Ver detalles</Link>
               </div>
             </article>
           ))}

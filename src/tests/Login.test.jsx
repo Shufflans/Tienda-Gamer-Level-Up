@@ -69,9 +69,8 @@ describe("Inicio de sesión", () => {
 
     fireEvent.submit(screen.getByRole("button", { name: "Entrar" }).closest("form"));
 
-    expect(await screen.findByRole("alert")).toHaveTextContent(
-      "Correo o contraseña incorrectos."
-    );
+    const alerta = await screen.findByRole("alert");
+    expect(alerta.textContent).toContain("Correo o contraseña incorrectos.");
     expect(sessionStorage.getItem("usuarioActual")).toBeNull();
     expect(navegar).not.toHaveBeenCalled();
   });
@@ -85,9 +84,8 @@ describe("Inicio de sesión", () => {
 
     fireEvent.submit(screen.getByRole("button", { name: "Entrar" }).closest("form"));
 
-    expect(await screen.findByRole("alert")).toHaveTextContent(
-      "Correo o contraseña incorrectos."
-    );
+    const alerta = await screen.findByRole("alert");
+    expect(alerta.textContent).toContain("Correo o contraseña incorrectos.");
     expect(navegar).not.toHaveBeenCalled();
   });
 });

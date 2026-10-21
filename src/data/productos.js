@@ -1,3 +1,4 @@
+
 export const productos = [
   {
     id: "1",
@@ -5,7 +6,7 @@ export const productos = [
     precio: 39990,
     categoria: "Accesorios",
     descripcion: "Control inalámbrico para disfrutar tus juegos favoritos con comodidad.",
-    imagen: "/ControlInalambrico.svg",
+    imagen: "./ControlInalambrico.webp",
     stock: 12,
   },
   {
@@ -14,7 +15,7 @@ export const productos = [
     precio: 13990,
     categoria: "Accesorios",
     descripcion: "Audífonos gamer diseñados para disfrutar un sonido envolvente.",
-    imagen: "/audifonosnpet.svg",
+    imagen: "./audifonosnpet.webp",
     stock: 8,
   },
   {
@@ -23,7 +24,7 @@ export const productos = [
     precio: 45990,
     categoria: "Periféricos",
     descripcion: "Teclado mecánico para mejorar la comodidad y precisión al jugar.",
-    imagen: "/teclado_mecanico.svg",
+    imagen: "./teclado_mecanico.jpg",
     stock: 5,
   },
   {
@@ -32,7 +33,7 @@ export const productos = [
     precio: 39990,
     categoria: "Periféricos",
     descripcion: "Mouse gamer para mejorar el control durante tus partidas.",
-    imagen: "/Logitech.svg",
+    imagen: "./Logitech.webp",
     stock: 10,
   },
   {
@@ -41,7 +42,7 @@ export const productos = [
     precio: 7990,
     categoria: "Accesorios",
     descripcion: "Alfombrilla gamer amplia con iluminación RGB para tu escritorio.",
-    imagen: "/Gamingpad.svg",
+    imagen: "./Gamingpad.webp",
     stock: 15,
   },
   {
@@ -50,7 +51,7 @@ export const productos = [
     precio: 14990,
     categoria: "Accesorios",
     descripcion: "Micrófono USB para comunicarte con tu equipo y transmitir partidas.",
-    imagen: "/Microfono.svg",
+    imagen: "./Microfono.webp",
     stock: 7,
   },
   {
@@ -59,7 +60,7 @@ export const productos = [
     precio: 16990,
     categoria: "Accesorios",
     descripcion: "Cámara Full HD para videollamadas, clases y transmisiones en vivo.",
-    imagen: "/Webcam.svg",
+    imagen: "./Webcam.webp",
     stock: 6,
   },
   {
@@ -68,7 +69,7 @@ export const productos = [
     precio: 129990,
     categoria: "Monitores",
     descripcion: "Monitor gamer de 24 pulgadas para disfrutar tus juegos con una pantalla amplia.",
-    imagen: "/Monitor.svg",
+    imagen: "./Monitor.webp",
     stock: 4,
   },
 ];

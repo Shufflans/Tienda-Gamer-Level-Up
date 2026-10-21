@@ -62,9 +62,8 @@ describe("Registro de usuarios", () => {
 
     fireEvent.submit(screen.getByRole("button", { name: "Crear cuenta" }).closest("form"));
 
-    expect(await screen.findByRole("alert")).toHaveTextContent(
-      "Ingresa un correo válido con un solo @."
-    );
+    const alerta = await screen.findByRole("alert");
+    expect(alerta.textContent).toContain("Ingresa un correo válido con un solo @.");
     expect(localStorage.getItem("usuarios")).toBeNull();
   });
 
@@ -79,9 +78,8 @@ describe("Registro de usuarios", () => {
 
     fireEvent.submit(screen.getByRole("button", { name: "Crear cuenta" }).closest("form"));
 
-    expect(await screen.findByRole("alert")).toHaveTextContent(
-      /mayúscula, minúscula, número y símbolo/i
-    );
+    const alerta = await screen.findByRole("alert");
+    expect(alerta.textContent).toMatch(/mayúscula, minúscula, número y símbolo/i);
     expect(localStorage.getItem("usuarios")).toBeNull();
   });
 
@@ -96,9 +94,8 @@ describe("Registro de usuarios", () => {
 
     fireEvent.submit(screen.getByRole("button", { name: "Crear cuenta" }).closest("form"));
 
-    expect(await screen.findByRole("alert")).toHaveTextContent(
-      "Las contraseñas no coinciden."
-    );
+    const alerta = await screen.findByRole("alert");
+    expect(alerta.textContent).toContain("Las contraseñas no coinciden.");
     expect(localStorage.getItem("usuarios")).toBeNull();
   });
 
@@ -120,9 +117,8 @@ describe("Registro de usuarios", () => {
 
     fireEvent.submit(screen.getByRole("button", { name: "Crear cuenta" }).closest("form"));
 
-    expect(await screen.findByRole("alert")).toHaveTextContent(
-      "Ya existe una cuenta registrada con ese correo."
-    );
+    const alerta = await screen.findByRole("alert");
+    expect(alerta.textContent).toContain("Ya existe una cuenta registrada con ese correo.");
     expect(JSON.parse(localStorage.getItem("usuarios"))).toHaveLength(1);
   });
 });

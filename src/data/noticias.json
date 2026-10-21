@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "categoria": "Torneos",
+    "titulo": "¡Gran torneo de Valorant este fin de semana en Level-Up!",
+    "descripcion": "Inscríbete con tu equipo y compite por una bolsa de premios de $500.000 CLP en periféricos.",
+    "fecha": "21 Oct 2026",
+    "tipoIcono": "gamepad",
+    "enlace": "https://www.nvidia.com/es-la/",
+    "textoBoton": "Ver noticia"
+  },
+  {
+    "id": 2,
+    "categoria": "Lanzamientos",
+    "titulo": "Llegaron los nuevos teclados mecánicos RK R65 Phantom",
+    "descripcion": "Revisa nuestro catálogo para conocer los nuevos switches amarillos con iluminación RGB personalizada.",
+    "fecha": "20 Oct 2026",
+    "tipoIcono": "computer",
+    "enlace": "https://hardzone.es/noticias/",
+    "textoBoton": "Ver noticia"
+  },
+  {
+    "id": 3,
+    "categoria": "Consejos",
+    "titulo": "Mira esto ANTES de Comprar una PC GAMER en 2026",
+    "descripcion": "Guía práctica con todo lo que necesitas saber antes de armar o comprar tu próxima PC gamer.",
+    "fecha": "19 Oct 2026",
+    "tipoIcono": "newspaper",
+    "enlace": "https://www.youtube.com/watch?v=TP8rDXQdjg8",
+    "textoBoton": "Ver video"
+  }
+]

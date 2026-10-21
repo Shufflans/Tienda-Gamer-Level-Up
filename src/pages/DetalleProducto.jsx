@@ -1,23 +1,18 @@
+import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { obtenerProducto } from "../data/productos.js";
+import { agregarAlCarrito } from "../data/carrito.js";
 
 export default function DetalleProducto() {
   const { id } = useParams();
   const producto = obtenerProducto(id);
+  const [mensaje, setMensaje] = useState("");
 
   if (!producto) {
     return (
       <main className="min-h-[70vh] flex flex-col items-center justify-center p-6 text-center">
-        <h1 className="text-3xl font-bold mb-4">
-          Producto no encontrado
-        </h1>
-
-        <Link
-          to="/productos"
-          className="text-[#C6F432] underline"
-        >
-          Volver al catálogo
-        </Link>
+        <h1 className="text-3xl font-bold mb-4">Producto no encontrado</h1>
+        <Link to="/productos" className="text-[#C6F432] underline">Volver al catálogo</Link>
       </main>
     );
   }
@@ -28,14 +23,14 @@ export default function DetalleProducto() {
     maximumFractionDigits: 0,
   }).format(producto.precio);
 
+  function manejarAgregar() {
+    const resultado = agregarAlCarrito(producto);
+    setMensaje(resultado.mensaje);
+  }
+
   return (
     <main className="max-w-6xl mx-auto px-5 py-12">
-      <Link
-        to="/productos"
-        className="text-[#C6F432] hover:underline"
-      >
-        ← Volver a productos
-      </Link>
+      <Link to="/productos" className="text-[#C6F432] hover:underline"> Volver a productos</Link>
 
       <section className="grid grid-cols-1 md:grid-cols-2 gap-10 mt-8 items-center">
         <img
@@ -45,19 +40,13 @@ export default function DetalleProducto() {
         />
 
         <div>
-          <span className="text-[#C6F432] uppercase tracking-widest text-sm">
-            {producto.categoria}
-          </span>
+          <span className="text-[#C6F432] uppercase tracking-widest text-sm">{producto.categoria}</span>
 
-          <h1 className="text-3xl md:text-4xl font-bold mt-3 mb-5">
-            {producto.nombre}
-          </h1>
+          <h1 className="text-3xl md:text-4xl font-bold mt-3 mb-5">{producto.nombre}</h1>
 
           <p className="text-3xl font-bold mb-6">{precio}</p>
 
-          <p className="text-[#BCA8E0] leading-relaxed mb-6">
-            {producto.descripcion}
-          </p>
+          <p className="text-[#BCA8E0] leading-relaxed mb-6">{producto.descripcion}</p>
 
           <p className="mb-7">
             Disponibilidad:{" "}
@@ -71,13 +60,19 @@ export default function DetalleProducto() {
           <button
             type="button"
             disabled={producto.stock === 0}
-            onClick={() =>
-              alert("El carrito de compras se implementará en la siguiente etapa.")
-            }
+            onClick={manejarAgregar}
             className="bg-[#C6F432] text-[#1A0B2E] font-bold px-8 py-4 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Agregar al carrito
           </button>
+
+          {mensaje && (
+            <p role="status" className="mt-4 text-[#C6F432]">{mensaje}</p>
+          )}
+
+          <div className="mt-5">
+            <Link to="/carrito" className="text-[#C6F432] underline"> Ir al carrito</Link>
+          </div>
         </div>
       </section>
     </main>

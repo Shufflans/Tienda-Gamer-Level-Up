@@ -26,7 +26,6 @@ export default function Login() {
     }
 
     let usuarios;
-
     try {
       usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
     } catch {
@@ -35,11 +34,12 @@ export default function Login() {
     }
 
     if (!Array.isArray(usuarios)) {
-      setError("Los datos de las cuentas no son válidos.");
-      return;
+      usuarios = [];
     }
 
-    if (usuarios.length === 0) {
+    const existeAdmin = usuarios.some(u => u.correo === "admin@levelup.com");
+
+    if (!existeAdmin) {
       const adminPorDefecto = {
         id: "admin-1",
         nombre: "Administrador",

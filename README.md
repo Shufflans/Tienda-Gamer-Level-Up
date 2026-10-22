@@ -10,10 +10,6 @@ Nicolás Chauca.
 Gabriel Yañez.
 <br>
 <br>
-**Descripcion tienda:**
-<br>
-Level-up Gamer es una tienda online dedicada a satisfacer las necesidades de los entusiastas de los
-videojuegos en chile.
 <br>
 ## Descripcion tienda:
 * Level-Up Gamer es una tienda online dedicada a satisfacer las necesidades de los entusiastas de los videojuegos en Chile. Lanzada hace dos años como respuesta a la creciente demanda durante la pandemia, Level-Up Gamer ofrece una amplia gama de productos para gamers, desde consolas y accesorios hasta computadores y sillas especializadas. Aunque no cuenta con una ubicación física, realiza despachos a todo el país.

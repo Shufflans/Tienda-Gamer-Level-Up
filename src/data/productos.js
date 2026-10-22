@@ -1,5 +1,4 @@
-
-export const productos = [
+const productosPorDefecto = [
   {
     id: "1",
     nombre: "Control Inalambrico Switch Negro RGB y Covertor Magnetico",
@@ -74,6 +73,14 @@ export const productos = [
   },
 ];
 
+
+export const productos = JSON.parse(localStorage.getItem("misProductos")) || productosPorDefecto;
+
+
 export function obtenerProducto(id) {
   return productos.find((producto) => producto.id === id);
+}
+
+export function guardarProductos() {
+  localStorage.setItem("misProductos", JSON.stringify(productos));
 }

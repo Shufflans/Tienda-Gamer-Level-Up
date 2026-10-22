@@ -35,7 +35,7 @@ export default function DetalleProducto() {
         <section className="grid grid-cols-1 md:grid-cols-2 gap-10 mt-8 items-center">
           <div className="overflow-hidden rounded-2xl border border-[#43237A] group cursor-zoom-in">
             <img
-              src={`${import.meta.env.BASE_URL}${producto.imagen}`}
+              src={producto.imagen.startsWith("data:") ? producto.imagen : `${import.meta.env.BASE_URL}${producto.imagen}`}
               alt={producto.nombre}
               className="w-full h-auto object-cover transition-transform duration-500 ease-out group-hover:scale-150"
             />

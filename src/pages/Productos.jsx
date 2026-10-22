@@ -122,7 +122,7 @@ export default function Productos() {
             >
               <Link to={`/productos/${producto.id}`}>
                 <img
-                  src={`${import.meta.env.BASE_URL}${producto.imagen}`}
+                  src={producto.imagen.startsWith("data:") ? producto.imagen : `${import.meta.env.BASE_URL}${producto.imagen}`}
                   alt={producto.nombre}
                   className="w-full h-48 object-cover group-hover:scale-105 transition duration-300"
                 />

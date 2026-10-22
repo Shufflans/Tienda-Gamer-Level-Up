@@ -24,6 +24,7 @@ export default function Login() {
       setError("Completa el correo electrónico y la contraseña.");
       return;
     }
+
     let usuarios;
 
     try {
@@ -36,6 +37,18 @@ export default function Login() {
     if (!Array.isArray(usuarios)) {
       setError("Los datos de las cuentas no son válidos.");
       return;
+    }
+
+    if (usuarios.length === 0) {
+      const adminPorDefecto = {
+        id: "admin-1",
+        nombre: "Administrador",
+        correo: "admin@levelup.com",
+        password: "admin",
+        rol: "admin",
+      };
+      usuarios.push(adminPorDefecto);
+      localStorage.setItem("usuarios", JSON.stringify(usuarios));
     }
 
     const usuarioEncontrado = usuarios.find(
@@ -56,6 +69,7 @@ export default function Login() {
           id: usuarioEncontrado.id,
           nombre: usuarioEncontrado.nombre,
           correo: usuarioEncontrado.correo,
+          rol: usuarioEncontrado.rol || "cliente",
         })
       );
     } catch {
@@ -63,7 +77,11 @@ export default function Login() {
       return;
     }
 
-    navigate("/productos", { replace: true });
+    if (usuarioEncontrado.rol === "admin") {
+      navigate("/admin/agregar", { replace: true });
+    } else {
+      navigate("/productos", { replace: true });
+    }
   }
 
   return (

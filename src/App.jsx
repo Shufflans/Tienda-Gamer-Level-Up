@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Link, Navigate, Outlet } from "react-router-dom";
 import Navbar from "./components/Navbar.jsx";
 import Login from "./pages/Login.jsx";
 import Registro from "./pages/Registro.jsx";
@@ -9,6 +9,29 @@ import Contacto from "./pages/Contacto.jsx";
 import Blog from "./pages/Blog.jsx";
 import Carrito from "./pages/Carrito.jsx";
 import Checkout from "./pages/Checkout.jsx";
+import AgregarProducto from "./pages/AgregarProductos.jsx";
+
+function RutaProtegida() {
+  let usuario = null;
+  try {
+    const datos = sessionStorage.getItem("usuarioActual");
+    if (datos && datos !== "undefined") {
+      usuario = JSON.parse(datos);
+    }
+  } catch (err) {
+    console.error("Error al leer sesión:", err);
+  }
+
+  if (!usuario) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (usuario.rol !== "admin") {
+    return <Navigate to="/productos" replace />;
+  }
+
+  return <Outlet />;
+}
 
 function Home() {
   return (
@@ -36,6 +59,7 @@ function Home() {
     </main>
   );
 }
+
 export default function App() {
   return (
     <BrowserRouter basename="/Tienda-Gamer-Level-Up">
@@ -47,12 +71,18 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Registro />} />
           <Route path="/productos" element={<Productos />} />
+          <Route path="/productos/:id" element={<DetalleProducto />} />
           <Route path="/nosotros" element={<Nosotros />} />
           <Route path="/contacto" element={<Contacto />} />
-          <Route path="/productos/:id" element={<DetalleProducto />} />
-          <Route path="/blog" element={<Blog />}/>
+          <Route path="/blog" element={<Blog />} />
           <Route path="/carrito" element={<Carrito />} />
           <Route path="/checkout" element={<Checkout />} />
+
+          <Route element={<RutaProtegida />}>
+            <Route path="/admin/agregar" element={<AgregarProducto />} />
+          </Route>
+
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
     </BrowserRouter>

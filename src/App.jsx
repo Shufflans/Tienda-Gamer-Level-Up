@@ -1,7 +1,12 @@
 import { BrowserRouter, Routes, Route, Link, Navigate, Outlet } from "react-router-dom";
 import Navbar from "./components/Navbar.jsx";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import { useAuth } from "./context/AuthContext.jsx";
+import { ROLES } from "./utils/roles.js";
+
 import Login from "./pages/Login.jsx";
 import Registro from "./pages/Registro.jsx";
+import NoAutorizado from "./pages/NoAutorizado.jsx";
 import Productos from "./pages/Productos.jsx";
 import DetalleProducto from "./pages/DetalleProducto.jsx";
 import Nosotros from "./pages/Nosotros.jsx";
@@ -9,27 +14,18 @@ import Contacto from "./pages/Contacto.jsx";
 import Blog from "./pages/Blog.jsx";
 import Carrito from "./pages/Carrito.jsx";
 import Checkout from "./pages/Checkout.jsx";
+import CompraExitosa from "./pages/CompraExitosa.jsx";
+import CompraFallida from "./pages/CompraFallida.jsx";
+import Panel from "./pages/Panel.jsx";
+import PanelProductos from "./pages/PanelProductos.jsx";
+import PanelOrdenes from "./pages/PanelOrdenes.jsx";
 import AgregarProducto from "./pages/AgregarProductos.jsx";
 
-function RutaProtegida() {
-  let usuario = null;
-  try {
-    const datos = sessionStorage.getItem("usuarioActual");
-    if (datos && datos !== "undefined") {
-      usuario = JSON.parse(datos);
-    }
-  } catch (err) {
-    console.error("Error al leer sesión:", err);
-  }
-
-  if (!usuario) {
-    return <Navigate to="/login" replace />;
-  }
-
-  if (usuario.rol !== "admin") {
-    return <Navigate to="/productos" replace />;
-  }
-
+// La tienda es para Cliente y Administrador. El Vendedor solo trabaja en su panel
+// (productos y órdenes), así que si intenta abrir la tienda se le devuelve al panel.
+function SoloTienda() {
+  const { user } = useAuth();
+  if (user?.rol === ROLES.VENDEDOR) return <Navigate to="/panel" replace />;
   return <Outlet />;
 }
 
@@ -67,19 +63,68 @@ export default function App() {
         <Navbar />
 
         <Routes>
-          <Route path="/" element={<Home />} />
+          {/* Públicas */}
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Registro />} />
-          <Route path="/productos" element={<Productos />} />
-          <Route path="/productos/:id" element={<DetalleProducto />} />
-          <Route path="/nosotros" element={<Nosotros />} />
-          <Route path="/contacto" element={<Contacto />} />
-          <Route path="/blog" element={<Blog />} />
-          <Route path="/carrito" element={<Carrito />} />
-          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/no-autorizado" element={<NoAutorizado />} />
 
-          <Route element={<RutaProtegida />}>
+          {/* Tienda (todos menos el Vendedor) */}
+          <Route element={<SoloTienda />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/nosotros" element={<Nosotros />} />
+            <Route path="/contacto" element={<Contacto />} />
+            <Route path="/blog" element={<Blog />} />
+
+            {/* El catálogo y el carrito requieren sesión (así lo exige el backend) */}
+            <Route
+              element={
+                <ProtectedRoute roles={[ROLES.CLIENTE, ROLES.ADMIN]}>
+                  <Outlet />
+                </ProtectedRoute>
+              }
+            >
+              <Route path="/productos" element={<Productos />} />
+              <Route path="/productos/:id" element={<DetalleProducto />} />
+              <Route path="/carrito" element={<Carrito />} />
+            </Route>
+          </Route>
+
+          {/* Compra: requiere sesión de Cliente (o Administrador) */}
+          <Route
+            element={
+              <ProtectedRoute roles={[ROLES.CLIENTE, ROLES.ADMIN]}>
+                <Outlet />
+              </ProtectedRoute>
+            }
+          >
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/compra-exitosa" element={<CompraExitosa />} />
+            <Route path="/compra-fallida" element={<CompraFallida />} />
+          </Route>
+
+          {/* Panel interno: Administrador y Vendedor (solo lectura para el Vendedor) */}
+          <Route
+            element={
+              <ProtectedRoute roles={[ROLES.ADMIN, ROLES.VENDEDOR]}>
+                <Outlet />
+              </ProtectedRoute>
+            }
+          >
+            <Route path="/panel" element={<Panel />} />
+            <Route path="/panel/productos" element={<PanelProductos />} />
+            <Route path="/panel/ordenes" element={<PanelOrdenes />} />
+          </Route>
+
+          {/* Solo Administrador: crear y editar productos */}
+          <Route
+            element={
+              <ProtectedRoute roles={[ROLES.ADMIN]}>
+                <Outlet />
+              </ProtectedRoute>
+            }
+          >
             <Route path="/admin/agregar" element={<AgregarProducto />} />
+            <Route path="/admin/editar/:id" element={<AgregarProducto />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />

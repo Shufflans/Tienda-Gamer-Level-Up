@@ -13,4 +13,9 @@ export default defineConfig({
     environment: 'jsdom',
   },
   base: '/Tienda-Gamer-Level-Up/',
+  server: {
+    proxy: {
+      "/api": { target: "http://localhost:8080", changeOrigin: true },
+    },
+  },
 })

@@ -1,96 +1,135 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { productos, guardarProductos } from "../data/productos";
+// Crear (/admin/agregar) y editar (/admin/editar/:id) productos. Solo Administrador.
+// POST /api/productos  y  PUT /api/productos/{id}
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { productService } from "../services/productService";
+import { imgSrc } from "../utils/imagenes";
+import { errorMsg } from "../utils/roles";
 
-const categoriasDisponibles = [...new Set(productos.map((p) => p.categoria))];
+const vacio = { nombre: "", descripcion: "", precio: "", stock: "", imagenUrl: "", activo: true };
+const campo = "w-full bg-[#1A0B2E] border border-[#43237A] rounded-xl p-3 outline-none focus:border-[#C6F432]";
 
 export default function AgregarProducto() {
   const navigate = useNavigate();
-  const [nombre, setNombre] = useState("");
-  const [precio, setPrecio] = useState("");
-  const [categoria, setCategoria] = useState(categoriasDisponibles[0] || "");
-  const [imagen, setImagen] = useState("");
+  const { id } = useParams();
+  const editando = Boolean(id);
 
-  function manejarImagen(e) {
-    const archivo = e.target.files[0];
-    if (archivo) {
-      const lector = new FileReader();
-      lector.onloadend = () => {
-        setImagen(lector.result);
-      };
-      lector.readAsDataURL(archivo);
+  const [form, setForm] = useState(vacio);
+  const [cargando, setCargando] = useState(editando);
+  const [guardando, setGuardando] = useState(false);
+  const [error, setError] = useState("");
+
+  // Al editar, se carga el producto actual
+  useEffect(() => {
+    if (!editando) return;
+    productService
+      .obtener(id)
+      .then((p) =>
+        setForm({
+          nombre: p.nombre ?? "",
+          descripcion: p.descripcion ?? "",
+          precio: p.precio ?? "",
+          stock: p.stock ?? "",
+          imagenUrl: p.imagenUrl ?? "",
+          activo: p.activo ?? true,
+        })
+      )
+      .catch((err) => setError(errorMsg(err, "No se pudo cargar el producto.")))
+      .finally(() => setCargando(false));
+  }, [id, editando]);
+
+  const cambiar = (e) => {
+    const { name, value, type, checked } = e.target;
+    setForm({ ...form, [name]: type === "checkbox" ? checked : value });
+  };
+
+  async function manejarEnvio(e) {
+    e.preventDefault();
+    setError("");
+
+    const precio = Number(form.precio);
+    const stock = Number(form.stock);
+    if (!form.nombre.trim()) return setError("El nombre es obligatorio.");
+    if (!(precio >= 0.01)) return setError("El precio debe ser mayor a 0.");
+    if (!Number.isInteger(stock) || stock < 0) return setError("El stock debe ser un número entero (0 o más).");
+
+    const producto = {
+      nombre: form.nombre.trim(),
+      descripcion: form.descripcion.trim(),
+      precio,
+      stock,
+      imagenUrl: form.imagenUrl.trim(),
+      activo: form.activo,
+    };
+
+    setGuardando(true);
+    try {
+      if (editando) await productService.actualizar(id, producto);
+      else await productService.crear(producto);
+      navigate("/panel/productos");
+    } catch (err) {
+      setError(errorMsg(err, "No se pudo guardar el producto. Revisa los datos."));
+    } finally {
+      setGuardando(false);
     }
   }
 
-  function manejarEnvio(e) {
-    e.preventDefault();
-
-    const nuevoProducto = {
-      id: Date.now().toString(),
-      nombre,
-      precio: Number(precio),
-      categoria,
-      descripcion: "Producto agregado desde el panel.",
-      imagen: imagen || "./default.webp",
-      stock: 10,
-    };
-
-    productos.push(nuevoProducto);
-    guardarProductos(); 
-
-    alert("¡Producto agregado exitosamente!");
-    navigate("/productos");
-  }
+  if (cargando) return <main className="min-h-[60vh] flex items-center justify-center text-[#BCA8E0]">Cargando...</main>;
 
   return (
     <main className="min-h-[80vh] flex items-center justify-center p-5">
-      <section className="w-full max-w-md bg-[#24123F] border border-[#43237A] rounded-2xl p-7 shadow-xl text-white">
-        <h1 className="text-3xl font-bold mb-6 text-[#C6F432]">Agregar Producto</h1>
+      <section className="w-full max-w-lg bg-[#24123F] border border-[#43237A] rounded-2xl p-7 shadow-xl text-white">
+        <h1 className="text-3xl font-bold mb-6 text-[#C6F432]">{editando ? "Editar producto" : "Agregar producto"}</h1>
 
         <form onSubmit={manejarEnvio} className="space-y-4">
           <div>
-            <label className="block mb-1 text-sm font-medium">Nombre</label>
-            <input required type="text" value={nombre} onChange={e => setNombre(e.target.value)} 
-              className="w-full bg-[#1A0B2E] border border-[#43237A] rounded-xl p-3 outline-none focus:border-[#C6F432]" />
+            <label htmlFor="nombre" className="block mb-1 text-sm font-medium">Nombre</label>
+            <input id="nombre" name="nombre" required value={form.nombre} onChange={cambiar} maxLength={150} className={campo} />
           </div>
 
           <div>
-            <label className="block mb-1 text-sm font-medium">Precio</label>
-            <input required type="number" value={precio} onChange={e => setPrecio(e.target.value)} 
-              className="w-full bg-[#1A0B2E] border border-[#43237A] rounded-xl p-3 outline-none focus:border-[#C6F432]" />
+            <label htmlFor="descripcion" className="block mb-1 text-sm font-medium">Descripción</label>
+            <textarea id="descripcion" name="descripcion" rows={3} value={form.descripcion} onChange={cambiar} className={campo} />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="precio" className="block mb-1 text-sm font-medium">Precio (CLP)</label>
+              <input id="precio" name="precio" type="number" min="1" step="1" required value={form.precio} onChange={cambiar} className={campo} />
+            </div>
+            <div>
+              <label htmlFor="stock" className="block mb-1 text-sm font-medium">Stock</label>
+              <input id="stock" name="stock" type="number" min="0" step="1" required value={form.stock} onChange={cambiar} className={campo} />
+            </div>
           </div>
 
           <div>
-            <label className="block mb-1 text-sm font-medium">Categoría</label>
-            <select value={categoria} onChange={e => setCategoria(e.target.value)} 
-              className="w-full bg-[#1A0B2E] border border-[#43237A] rounded-xl p-3 outline-none focus:border-[#C6F432]">
-              {categoriasDisponibles.map((cat) => (
-                <option key={cat} value={cat}>{cat}</option>
-              ))}
-            </select>
+            <label htmlFor="imagenUrl" className="block mb-1 text-sm font-medium">Imagen (URL o ruta, ej. ./Monitor.webp)</label>
+            <input id="imagenUrl" name="imagenUrl" value={form.imagenUrl} onChange={cambiar} className={campo} placeholder="https://... o ./imagen.webp" />
           </div>
 
-          <div>
-            <label className="block mb-1 text-sm font-medium">Subir Imagen</label>
-            <input 
-              required 
-              type="file" 
-              accept="image/*" 
-              onChange={manejarImagen}
-              className="w-full bg-[#1A0B2E] border border-[#43237A] rounded-xl p-2 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-[#C6F432] file:text-[#1A0B2E] hover:file:cursor-pointer" 
-            />
-          </div>
-
-          {imagen && (
+          {form.imagenUrl && (
             <div className="flex items-center gap-3 bg-[#1A0B2E] p-3 border border-[#43237A] rounded-xl">
-              <img src={imagen} alt="Vista previa" className="w-14 h-14 object-cover rounded-lg border border-[#43237A]" />
-              <span className="text-xs text-[#BCA8E0]">Imagen lista para guardar</span>
+              <img src={imgSrc(form.imagenUrl)} alt="Vista previa" className="w-14 h-14 object-cover rounded-lg border border-[#43237A]" />
+              <span className="text-xs text-[#BCA8E0]">Vista previa de la imagen</span>
             </div>
           )}
 
-          <button type="submit" className="w-full bg-[#C6F432] text-[#1A0B2E] font-bold p-3 rounded-xl mt-4 hover:brightness-110 transition">
-            Guardar Producto
-          </button>
+          <label className="flex items-center gap-3 text-sm">
+            <input type="checkbox" name="activo" checked={form.activo} onChange={cambiar} className="accent-[#C6F432] h-4 w-4" />
+            Producto activo (visible en la tienda)
+          </label>
+
+          {error && <p role="alert" className="text-sm text-red-400">{error}</p>}
+
+          <div className="flex gap-3 pt-2">
+            <button type="button" onClick={() => navigate("/panel/productos")} className="flex-1 rounded-xl border border-[#43237A] p-3 font-bold hover:border-[#C6F432]">
+              Cancelar
+            </button>
+            <button type="submit" disabled={guardando} className="flex-1 bg-[#C6F432] text-[#1A0B2E] font-bold p-3 rounded-xl hover:brightness-110 transition disabled:opacity-60">
+              {guardando ? "Guardando..." : "Guardar producto"}
+            </button>
+          </div>
         </form>
       </section>
     </main>

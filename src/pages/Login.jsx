@@ -1,86 +1,47 @@
 import { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { homeFor } from "../utils/roles";
 
 export default function Login() {
+  const { user, login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [correo, setCorreo] = useState("");
+  const [usuario, setUsuario] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [mensaje] = useState(
-    location.state?.registroExitoso
-      ? "Cuenta creada correctamente. Ya puedes iniciar sesión."
-      : ""
-  );
+  const [cargando, setCargando] = useState(false);
 
-  function manejarEnvio(e) {
+  const mensaje = location.state?.registroExitoso
+    ? "Cuenta creada correctamente. Ya puedes iniciar sesión."
+    : "";
+
+  // Si ya hay una sesión activa no se muestra el login
+  if (user) return <Navigate to={homeFor(user.rol)} replace />;
+
+  async function manejarEnvio(e) {
     e.preventDefault();
     setError("");
 
-    const correoNormalizado = correo.trim().toLowerCase();
-
-    if (!correoNormalizado || !password) {
-      setError("Completa el correo electrónico y la contraseña.");
+    const usuarioLimpio = usuario.trim();
+    if (!usuarioLimpio || !password) {
+      setError("Completa el usuario y la contraseña.");
       return;
     }
 
-    let usuarios;
+    setCargando(true);
     try {
-      usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
-    } catch {
-      setError("No se pudieron consultar las cuentas guardadas.");
-      return;
-    }
-
-    if (!Array.isArray(usuarios)) {
-      usuarios = [];
-    }
-
-    const existeAdmin = usuarios.some(u => u.correo === "admin@levelup.com");
-
-    if (!existeAdmin) {
-      const adminPorDefecto = {
-        id: "admin-1",
-        nombre: "Administrador",
-        correo: "admin@levelup.com",
-        password: "admin",
-        rol: "admin",
-      };
-      usuarios.push(adminPorDefecto);
-      localStorage.setItem("usuarios", JSON.stringify(usuarios));
-    }
-
-    const usuarioEncontrado = usuarios.find(
-      (usuario) =>
-        usuario.correo === correoNormalizado &&
-        usuario.password === password
-    );
-
-    if (!usuarioEncontrado) {
-      setError("Correo o contraseña incorrectos.");
-      return;
-    }
-
-    try {
-      sessionStorage.setItem(
-        "usuarioActual",
-        JSON.stringify({
-          id: usuarioEncontrado.id,
-          nombre: usuarioEncontrado.nombre,
-          correo: usuarioEncontrado.correo,
-          rol: usuarioEncontrado.rol || "cliente",
-        })
-      );
-    } catch {
-      setError("No se pudo iniciar la sesión en este navegador.");
-      return;
-    }
-
-    if (usuarioEncontrado.rol === "admin") {
-      navigate("/admin/agregar", { replace: true });
-    } else {
-      navigate("/productos", { replace: true });
+      // POST /api/auth/login -> guarda token, refreshToken y rol (ver AuthContext)
+      const sesion = await login(usuarioLimpio, password);
+      // Vuelve a la página que quería abrir, o a la pantalla de inicio de su rol
+      const destino = location.state?.from?.pathname ?? homeFor(sesion.rol);
+      navigate(destino, { replace: true });
+    } catch (err) {
+      if (!err.response) setError("No hay conexión con el servidor.");
+      else setError("Usuario o contraseña incorrectos.");
+    } finally {
+      setCargando(false);
     }
   }
 
@@ -95,14 +56,14 @@ export default function Login() {
 
         <form onSubmit={manejarEnvio} className="space-y-5">
           <div>
-            <label htmlFor="correo" className="block mb-2">Correo electrónico</label>
+            <label htmlFor="usuario" className="block mb-2">Usuario o correo electrónico</label>
 
             <input
-              id="correo"
-              type="email"
-              autoComplete="email"
-              value={correo}
-              onChange={(e) => setCorreo(e.target.value)}
+              id="usuario"
+              type="text"
+              autoComplete="username"
+              value={usuario}
+              onChange={(e) => setUsuario(e.target.value)}
               placeholder="tu@correo.com"
               required
               className="w-full bg-[#1A0B2E] border border-[#43237A] rounded-xl p-3 outline-none focus:border-[#C6F432]"
@@ -124,18 +85,22 @@ export default function Login() {
             />
           </div>
 
-          {mensaje && (<p role="status" className="text-[#C6F432] text-sm">{mensaje}</p>
-          )}
+          {mensaje && <p role="status" className="text-[#C6F432] text-sm">{mensaje}</p>}
 
-          {error && (<p role="alert" className="text-red-400 text-sm">{error}</p>
-          )}
+          {error && <p role="alert" className="text-red-400 text-sm">{error}</p>}
 
-          <button type="submit"className="w-full bg-[#C6F432] text-[#1A0B2E] font-bold p-3 rounded-xl hover:brightness-110 transition">Entrar</button>
+          <button
+            type="submit"
+            disabled={cargando}
+            className="w-full bg-[#C6F432] text-[#1A0B2E] font-bold p-3 rounded-xl hover:brightness-110 transition disabled:opacity-60"
+          >
+            {cargando ? "Ingresando..." : "Entrar"}
+          </button>
         </form>
 
         <p className="text-center text-[#BCA8E0] mt-6">
           ¿No tienes una cuenta?{" "}
-          <Link to="/registro"className="text-[#C6F432] font-bold hover:underline">Regístrate</Link>
+          <Link to="/registro" className="text-[#C6F432] font-bold hover:underline">Regístrate</Link>
         </p>
       </section>
     </main>

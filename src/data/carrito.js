@@ -1,4 +1,6 @@
-const CLAVE_CARRITO = "carrito";
+// Carrito de compras: se guarda en localStorage para que no se pierda al recargar.
+// (Clave nueva "carrito_v2" para no mezclar con los productos de ejemplo de la versión anterior.)
+const CLAVE_CARRITO = "carrito_v2";
 
 export function obtenerCarrito() {
   try {
@@ -13,6 +15,7 @@ function guardarCarrito(carrito) {
   window.dispatchEvent(new Event("carritoActualizado"));
 }
 
+// Recibe un producto tal como lo entrega la API (id, nombre, precio, stock, imagenUrl...)
 export function agregarAlCarrito(producto) {
   const carrito = obtenerCarrito();
   const existente = carrito.find((item) => item.id === producto.id);
@@ -21,14 +24,13 @@ export function agregarAlCarrito(producto) {
     if (existente.cantidad >= producto.stock) {
       return { ok: false, mensaje: "No hay más unidades disponibles." };
     }
-
     existente.cantidad += 1;
   } else {
     carrito.push({
       id: producto.id,
       nombre: producto.nombre,
       precio: producto.precio,
-      imagen: producto.imagen,
+      imagen: producto.imagenUrl,
       stock: producto.stock,
       cantidad: 1,
     });
@@ -41,14 +43,12 @@ export function agregarAlCarrito(producto) {
 export function cambiarCantidad(id, cantidad) {
   const carrito = obtenerCarrito();
   const producto = carrito.find((item) => item.id === id);
-
   if (!producto) return;
 
   if (cantidad <= 0) {
     eliminarDelCarrito(id);
     return;
   }
-
   if (cantidad > producto.stock) return;
 
   producto.cantidad = cantidad;
